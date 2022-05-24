@@ -1,0 +1,39 @@
+/* 重置css样式 */
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+a{
+    text-decoration: none;
+    color: black;
+}
+.w{
+    width: 84.375rem;
+    margin: 0 auto;
+}
+ul{
+    list-style-type: none
+}
+input:focus{
+    outline: none
+}
+body{
+    background-color: rgba(138, 198, 209, .3);
+}
+
+/* 使用字体图标 */
+@font-face {
+    font-family: 'iconfont';
+    src: url('./fonts/iconfont.woff2?t=1653301136695') format('woff2'),
+         url('./fonts/iconfont.woff?t=1653301136695') format('woff'),
+         url('./fonts/iconfont.ttf?t=1653301136695') format('truetype');
+}
+/* 定义使用的iconfont样式 */
+.iconfont {
+    font-family: "iconfont" !important;
+    font-size: 16px;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
