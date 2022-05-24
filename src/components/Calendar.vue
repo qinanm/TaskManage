@@ -20,7 +20,6 @@
         @click="changeActiveDate(curday.content)"
       >
         <span>{{ curday.content }}</span>
-     
       </div>
     </div>
   </div>
@@ -30,7 +29,7 @@
 export default {
   name: "my-calendar",
   // 日历的关键就是定位每个月的一号是星期几
-  props:['taskList'],
+  props: ["taskList"],
   data() {
     return {
       // 当前年份
@@ -98,9 +97,14 @@ export default {
         this.curMonth = 0;
       }
     },
-    // 点击对应的天数，修改当前天数 获取当前时间对应的任务（匹配年月日）
+    // 点击对应的天数，1.修改当前天数  2.获取当前时间对应的任务（匹配年月日）
     changeActiveDate(date) {
       this.curData = date;
+      // 修改组件taskManage的 targetDate
+      const targetDate = this.curYear + "." + (this.curMonth + 1) + "." + date;
+      // 通过自定义事件来进行组件间的通信
+      console.log(targetDate);
+      this.$emit("getTargetDate", targetDate);
     },
   },
 };
@@ -110,7 +114,7 @@ export default {
 #calendar {
   width: 23.75rem;
   height: 25rem;
-//   background-color: #fff;
+  //   background-color: #fff;
   padding: 0.9375rem;
   .calendar_header {
     display: flex;

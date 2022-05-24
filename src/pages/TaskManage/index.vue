@@ -56,8 +56,8 @@
     </div>
     <!-- 使用全局组件 日历 -->
     <div class="calendar">
-      <!-- 组件间的传递，父传子 -->
-      <MyCalendar></MyCalendar>
+      <!-- 组件间的传递，自定义事件 -->
+      <MyCalendar ref="calendar"></MyCalendar>
     </div>
     <div class="clock">
       <MyClock></MyClock>
@@ -74,6 +74,13 @@ export default {
     return {
       taskCon: "",
       taskList: [], // 任务数组
+      // 当前日期
+      targetDate:
+        new Date().getFullYear() +
+        "." +
+        (new Date().getMonth() + 1) +
+        "." +
+        new Date().getDate(),
     };
   },
   // 方法
@@ -82,7 +89,6 @@ export default {
     addTask() {
       // 输入数据非空，将用户的输入包装成一个对象
       if (this.taskCon.trim()) {
-        const data = new Date();
         const task = {
           id: nanoid(),
           content: this.taskCon,
@@ -91,11 +97,6 @@ export default {
           // 是否处于编辑状态
           isEdit: false,
           // 获取当前日期
-          time: {
-            year: data.getFullYear(),
-            month: data.getMonth(),
-            data: data.getDate()
-          }
         };
         this.taskList.unshift(task);
         this.taskCon = "";
@@ -147,6 +148,7 @@ export default {
         }
       });
     },
+
     // 通过id 删除任务
     deleteTask(id) {
       this.taskList = this.taskList.filter((task) => task.id !== id);
@@ -160,10 +162,26 @@ export default {
   // 挂载完毕
   mounted() {
     // 防止localStorage.getItem("taskList")还未被定义，为空，所以要传入空的数组，使类型为数组
-    if (!localStorage.getItem("taskList")) {
-      localStorage.setItem("taskList", JSON.stringify(this.taskList));
+    if (!localStorage.getItem(`taskList${this.targetDate}`)) {
+      localStorage.setItem(
+        `taskList${this.targetDate}`,
+        JSON.stringify(this.taskList)
+      );
     }
-    this.taskList = JSON.parse(localStorage.getItem("taskList"));
+    this.taskList = JSON.parse(
+      localStorage.getItem(`taskList${this.targetDate}`)
+    );
+
+    // 绑定自定义事件
+    this.$refs.calendar.$on("getTargetDate", (targetDate) => {
+      this.targetDate = targetDate;
+    });
+  },
+
+  // 销毁前
+  beforeDestroy() {
+    //解绑自定义事件
+    this.$refs.calendar.$off("getTargetDate");
   },
 
   // 更新完毕  ---- 以使用深度监视taskList代替
@@ -176,17 +194,16 @@ export default {
     taskList: {
       deep: true,
       handler(value) {
-        localStorage.setItem("taskList", JSON.stringify(value));
+        localStorage.setItem(
+          `taskList${this.targetDate}`,
+          JSON.stringify(value)
+        );
       },
     },
-    // 值决定是否全选 --- 使用v-model可以得到和改变输入框checked的值
-    // updateAllToDoneJudge(value){
-    //  if(value){
-    //    this.taskList.forEach(task=>task.isdone=true)
-    //  } else{
-    //    this.taskList.forEach(task=>task.isdone=false)
-    //  }
-    // }
+    // 监听targetDate的变化，发生改变，重新获取taskLisk(然后就可以自动重新渲染任务列表了)
+    targetDate() {
+      this.taskList = JSON.parse(localStorage.getItem(`taskList${this.targetDate}`)) || [];
+    },
   },
   // 计算属性
   computed: {
