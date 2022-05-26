@@ -1,5 +1,5 @@
 <template>
-  <div id="task-manager" class="w">
+  <div id="task-manager">
     <div class="task-sec">
       <div class="header task_w">
         <!-- 直接enter键添加 不用发送图标了 -->
@@ -55,13 +55,9 @@
       </div>
     </div>
     <!-- 使用全局组件 日历 -->
-    <div class="calendar">
-      <!-- 组件间的传递，自定义事件 -->
-      <MyCalendar ref="calendar"></MyCalendar>
-    </div>
-    <div class="clock">
-      <MyClock></MyClock>
-    </div>
+    <!-- 组件间的传递，自定义事件 -->
+    <MyCalendar ref="calendar"></MyCalendar>
+    <MyClock></MyClock>
   </div>
 </template>
 
@@ -233,9 +229,6 @@ export default {
 
 <style scoped lang="less">
 #task-manager {
-  height: 46.875rem;
-  background-color: rgba(138, 198, 209, 0.3);
-  position: relative;
   .task-sec {
     width: 40%;
     padding: 0.625rem;
@@ -312,16 +305,6 @@ export default {
         color: rgb(241, 240, 239);
       }
     }
-  }
-  .calendar {
-    position: absolute;
-    bottom: 1.25rem;
-    right: 6.25rem;
-  }
-  .clock {
-    position: absolute;
-    top: 3.125rem;
-    right: 11.25rem;
   }
 }
 </style>

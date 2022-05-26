@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 3422837 */
-  src: url('iconfont.woff2?t=1653301136695') format('woff2'),
-       url('iconfont.woff?t=1653301136695') format('woff'),
-       url('iconfont.ttf?t=1653301136695') format('truetype');
+  src: url('iconfont.woff2?t=1653451717174') format('woff2'),
+       url('iconfont.woff?t=1653451717174') format('woff'),
+       url('iconfont.ttf?t=1653451717174') format('truetype');
 }
 
 .iconfont {
@@ -11,6 +11,42 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-Arrow-Left-copy:before {
+  content: "\e749";
+}
+
+.icon-Arrow-Left:before {
+  content: "\e61f";
+}
+
+.icon-happy:before {
+  content: "\e602";
+}
+
+.icon-a-gangaliuhanbiaoqingxiaolian:before {
+  content: "\e743";
+}
+
+.icon-a-dakubeishangshangxinbiaoqingxiaolian:before {
+  content: "\e744";
+}
+
+.icon-a-xiaolianbiaoqing:before {
+  content: "\e745";
+}
+
+.icon-a-shengqifennumaohuofenkaiqifenbiaoqingxiaolian:before {
+  content: "\e746";
+}
+
+.icon-a-jingyajingqiwasetianlabiaoqingxiaolian:before {
+  content: "\e747";
+}
+
+.icon-a-aiqingxihuansebiaoqingxiaolian:before {
+  content: "\e748";
 }
 
 .icon-calendar:before {

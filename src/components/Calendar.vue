@@ -114,6 +114,9 @@ export default {
 #calendar {
   width: 23.75rem;
   height: 25rem;
+  position: absolute;
+  top: 25rem;
+  right: 6.25rem;
   //   background-color: #fff;
   padding: 0.9375rem;
   .calendar_header {

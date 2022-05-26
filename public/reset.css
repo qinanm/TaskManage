@@ -37,3 +37,11 @@ body{
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
+/* 字体图标--symbol引入，加入css通用代码 */
+.icon {
+    width: 6.25rem;
+    height: 6.25rem;
+    vertical-align: -0.15em;
+    fill: currentColor;
+    overflow: hidden;
+}

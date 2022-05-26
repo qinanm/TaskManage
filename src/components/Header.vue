@@ -1,11 +1,14 @@
 <template>
-  <div id="header" class="w">
+  <div id="header" class="w" ref="headers">
     <div class="active">
-        <!-- 声明式导航--路由跳转 -->
-        <router-link to="/task_manage">任务管理</router-link>
-        <!-- <a href="#">任务管理</a> -->
+      <!-- 声明式导航--路由跳转 -->
+      <router-link to="/task_manage">任务管理</router-link>
+      <!-- <a href="#">任务管理</a> -->
     </div>
-    <div><a href="#">心情监测</a></div>
+    <div>
+      <router-link to="/mood_watch">心情监测</router-link>
+      <!-- <a href="#">心情监测</a> -->
+    </div>
     <div><a href="#">来点music</a></div>
     <div><a href="#">随机美句</a></div>
     <div><a href="#">个人中心</a></div>
@@ -16,32 +19,30 @@
 export default {
   name: "my-header",
   data() {
-      return {
-      }
+    return {};
   },
 };
 </script>
 
 <style scoped lang="less">
-
 #header {
   display: flex;
   height: 3.4375rem;
-  background-color: rgb(187,222,214);
-  
-  div{
-      display: flex;
-      flex-direction: column;
-      width: 25%;
-      border: .0625rem solid rgb(253, 210, 210);
-      justify-content: center;
-      font-size: 1.1875rem;
-      a{
-          text-align: center;
-      }
+  background-color: rgb(187, 222, 214);
+
+  div {
+    display: flex;
+    flex-direction: column;
+    width: 25%;
+    border: 0.0625rem solid rgb(253, 210, 210);
+    justify-content: center;
+    font-size: 1.1875rem;
+    a {
+      text-align: center;
+    }
   }
-  .active{
-      background-color: rgb(255,182,185);
+  .active {
+    background-color: rgb(255, 182, 185);
   }
 }
 </style>

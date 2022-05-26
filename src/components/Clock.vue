@@ -65,8 +65,8 @@ export default {
   },
   // 注销前清除定时器
   beforeDestroy() {
-      clearInterval(this.Timer);
-      this.Timer = '';
+    clearInterval(this.Timer);
+    this.Timer = "";
   },
 };
 </script>
@@ -83,7 +83,9 @@ export default {
     inset 0.1875rem 0.1875rem 0.4375rem rgb(106, 153, 161, 0.5),
     inset -0.1875rem -0.1875rem 0.3125rem rgba(105, 137, 145, 0.2);
   padding: 0.625rem;
-  position: relative;
+  position: absolute;
+  top: 3.125rem;
+  right: 11.25rem;
   .outer-clock-face {
     position: relative;
     height: 100%;
