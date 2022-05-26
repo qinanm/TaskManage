@@ -2,6 +2,9 @@ import Vue from 'vue'
 // 按需引入 element-ui 
 import { Button,Message,MessageBox,Dialog } from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css';  // 引入element-ui样式
+// 引入echarts
+import * as echarts from 'echarts';
+Vue.prototype.$echarts = echarts
 import App from './App.vue'
 Vue.prototype.$confirm = MessageBox.confirm
 Vue.prototype.$alert = MessageBox.alert;

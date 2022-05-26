@@ -71,12 +71,28 @@
       >
 
       <el-dialog
-        title="提示"
+        title="心情报告"
         :visible.sync="dialogVisible"
         width="30%"
         :before-close="handleClose"
       >
-        <span>这是一段信息111111111111</span>
+        <!-- <span>这是一段信息111111111111</span> -->
+        <!-- 画图 -- 关于心情统计的图 在点击来后在画出来 -->
+        <!-- <button @click="drawPiePic" class="draw-btn">
+          点击查看{{ curMonth }}月心情数据
+        </button> -->
+        <div
+          class="echart"
+          ref="echart"
+          style="width: 100%; height: 580px"
+        ></div>
+        <!-- 一些心情具体数据的表现 -->
+        <div class="specify-mood">
+          你的正面情绪次数出现了 <span>{{ goodMoods }}</span> 次 <br />
+          你的中性情绪次数出现了 <span>{{ middleMoods }}</span> 次 <br />
+          你的负面情绪次数出现了 <span>{{ badMoods }}</span> 次 <br />
+          你的情绪中出现最多次数的是 <span>{{ maxMood }}</span>
+        </div>
         <span slot="footer" class="dialog-footer">
           <el-button @click="dialogVisible = false">取 消</el-button>
           <el-button type="primary" @click="dialogVisible = false"
@@ -85,6 +101,7 @@
         </span>
       </el-dialog>
     </div>
+
     <MyCalendar ref="calendar"></MyCalendar>
     <MyClock></MyClock>
   </div>
@@ -152,7 +169,155 @@ export default {
         "." +
         new Date().getDate(),
       dialogVisible: false, // element-ui中用到
+
+      // echarts画图需要用到
+      myChart: "",
+      option: {},
+      // 统计的不同情绪次数
+      goodMoods: 0, // 正面情绪出现次数
+      middleMoods: 0, // 中性情绪出现次数
+      badMoods: 0, // 负面情绪出现次数
+      maxMood: "无", // 出现最多次的情绪
     };
+  },
+  computed: {
+    curMonth() {
+      return this.targetDate.split(".")[1];
+    },
+  },
+  watch: {
+    // 监听targetDate的变化
+    targetDate() {
+      if (localStorage.getItem(`${this.targetDate}moodDiary`)) {
+        const curmoodsAndEmojis =
+          JSON.parse(localStorage.getItem(`${this.targetDate}moodDiary`))[3] ||
+          [];
+        this.curMood = curmoodsAndEmojis.mood;
+        this.curDiary = curmoodsAndEmojis.diary;
+      } else {
+        this.curMood = "";
+        this.curDiary = "";
+      }
+    },
+    // 监听这个数据的变化，当它为true的时候,渲染echarts  dialogVisible这个数据就是true出现弹窗，false不出现
+    dialogVisible(value) {
+      if (value) {
+        // console.log(this.targetDate.split(".")[1] - 1); // 可以通过这个获取当前月份，然后渲染就可以和日历月份进行联动，年份也是同理可得
+        // 获取数据，从本地得到本月的数据
+        // const curYear = new Date().getFullYear();
+        const curYear = new Date().getFullYear();
+        const curMonth = this.targetDate.split(".")[1] - 1;
+        // 每个月对应的天数
+        let daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+        // 闰年2月不同天数
+        if ((curYear % 4 === 0 && curYear % 100 !== 0) || curYear % 400 === 0) {
+          daysInMonth[1] = 29;
+        }
+        const days = daysInMonth[curMonth];
+        let goodMoods = 0; // 正面心情次数
+        let middleMoods = 0; // 中性心情次数
+        let badMoods = 0; // 负面心情次数
+        let maxMoodCount = 0; // 出现心情次数最多的次数
+        let maxMood = "无"; // 出现次数最多的心情
+        // 使用map来存储数据 心情是键，次数是值
+        let map = new Map();
+        let moodItems = []; // 用来存放遍历的map
+        for (let i = 1; i < days + 1; i++) {
+          const targetDate = curYear + "." + (curMonth + 1) + "." + i;
+          // console.log(targetDate);
+          if (localStorage.getItem(`${targetDate}moodDiary`)) {
+            const curMoodDiary = JSON.parse(
+              localStorage.getItem(`${targetDate}moodDiary`)
+            )[3];
+            if (!map.has(curMoodDiary.mood)) {
+              map.set(curMoodDiary.mood, 1);
+            } else {
+              map.set(curMoodDiary.mood, map.get(curMoodDiary.mood) + 1);
+            }
+            // 得到正面，负面和中性情绪分别的次数
+            if (curMoodDiary.type === "正面") {
+              goodMoods++;
+            } else if (curMoodDiary.type === "中性") {
+              middleMoods++;
+            } else {
+              badMoods++;
+            }
+          }
+        }
+        // 如果map为空，说明当月没有数据
+        if (!map.size) {
+          moodItems = [{ value: 1, name: "本月木有情绪记录啦" }];
+        }
+        // 将统计的不同面情绪赋值给data
+        this.goodMoods = goodMoods;
+        this.middleMoods = middleMoods;
+        this.badMoods = badMoods;
+
+        // map遍历 item 是数组 第一个值是 key， 第二个值是 value
+        for (let item of map) {
+          // console.log(item);
+          moodItems.push({
+            value: item[1],
+            name: item[0],
+          });
+          // 通过这个也可以得到出现最多的心情是什么
+          if (maxMoodCount < item[1]) {
+            maxMoodCount = item[1];
+            maxMood = item[0];
+          }
+        }
+        this.maxMood = maxMood; // 将maxMood赋值给data
+
+        // 老是报获取不到dom的错误，所以用nextTick试试
+        this.$nextTick(() => {
+          this.myChart && this.myChart.clear(); //每次重新渲染, 清除前面的
+          // echarts 画图
+          const chartDom = this.$refs.echart;
+          let myChart = this.$echarts.init(chartDom);
+          let option;
+          option = {
+            title: {
+              text: `2022年${this.curMonth}月心情统计`,
+              left: "center",
+            },
+            tooltip: {
+              trigger: "item",
+            },
+            legend: {
+              orient: "vertical",
+              left: "left",
+            },
+            series: [
+              {
+                name: "my Mood",
+                type: "pie",
+                radius: "50%",
+                // 将数据放入其中
+                data: moodItems,
+                /* data: [
+              { value: 3, name: "开心" },
+              { value: 4, name: "惊讶" },
+              { value: 1, name: "难过" },
+              { value: 3, name: "生气" },
+              { value: 2, name: "喜欢" },
+              { value: 2, name: "中性" },
+            ], */
+                emphasis: {
+                  itemStyle: {
+                    shadowBlur: 10,
+                    shadowOffsetX: 0,
+                    shadowColor: "rgba(0, 0, 0, 0.5)",
+                  },
+                },
+              },
+            ],
+          };
+          this.myChart = myChart;
+          this.option = option;
+          option && myChart.setOption(option);
+        });
+      }
+    },
   },
   methods: {
     // 向左
@@ -243,6 +408,121 @@ export default {
         // console.log(itemAngle);
       });
     },
+    // 点击画图
+    // drawPiePic(e) {
+    //   // console.log(this.targetDate.split(".")[1] - 1); // 可以通过这个获取当前月份，然后渲染就可以和日历月份进行联动，年份也是同理可得
+    //   // 获取数据，从本地得到本月的数据
+    //   // const curYear = new Date().getFullYear();
+    //   const curYear = new Date().getFullYear();
+    //   const curMonth = this.targetDate.split(".")[1] - 1;
+    //   // 每个月对应的天数
+    //   let daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    //   // 闰年2月不同天数
+    //   if ((curYear % 4 === 0 && curYear % 100 !== 0) || curYear % 400 === 0) {
+    //     daysInMonth[1] = 29;
+    //   }
+    //   const days = daysInMonth[curMonth];
+    //   let goodMoods = 0; // 正面心情次数
+    //   let middleMoods = 0; // 中性心情次数
+    //   let badMoods = 0; // 负面心情次数
+    //   let maxMoodCount = 0; // 出现心情次数最多的次数
+    //   let maxMood = "无"; // 出现次数最多的心情
+    //   // 使用map来存储数据 心情是键，次数是值
+    //   let map = new Map();
+    //   let moodItems = []; // 用来存放遍历的map
+    //   for (let i = 1; i < days + 1; i++) {
+    //     const targetDate = curYear + "." + (curMonth + 1) + "." + i;
+    //     // console.log(targetDate);
+    //     if (localStorage.getItem(`${targetDate}moodDiary`)) {
+    //       const curMoodDiary = JSON.parse(
+    //         localStorage.getItem(`${targetDate}moodDiary`)
+    //       )[3];
+    //       if (!map.has(curMoodDiary.mood)) {
+    //         map.set(curMoodDiary.mood, 1);
+    //       } else {
+    //         map.set(curMoodDiary.mood, map.get(curMoodDiary.mood) + 1);
+    //       }
+    //       // 得到正面，负面和中性情绪分别的次数
+    //       if (curMoodDiary.type === "正面") {
+    //         goodMoods++;
+    //       } else if (curMoodDiary.type === "中性") {
+    //         middleMoods++;
+    //       } else {
+    //         badMoods++;
+    //       }
+    //     }
+    //   }
+    //   // 如果map为空，说明当月没有数据
+    //   if (!map.size) {
+    //     moodItems = [{ value: 1, name: "本月木有情绪记录啦" }];
+    //   }
+    //   // 将统计的不同面情绪赋值给data
+    //   this.goodMoods = goodMoods;
+    //   this.middleMoods = middleMoods;
+    //   this.badMoods = badMoods;
+
+    //   // map遍历 item 是数组 第一个值是 key， 第二个值是 value
+    //   for (let item of map) {
+    //     // console.log(item);
+    //     moodItems.push({
+    //       value: item[1],
+    //       name: item[0],
+    //     });
+    //     // 通过这个也可以得到出现最多的心情是什么
+    //     if (maxMoodCount < item[1]) {
+    //       maxMoodCount = item[1];
+    //       maxMood = item[0];
+    //     }
+    //   }
+    //   this.maxMood = maxMood; // 将maxMood赋值给data
+
+    //   // echarts 画图
+    //   const chartDom = this.$refs.echart;
+    //   let myChart = this.$echarts.init(chartDom);
+    //   let option;
+    //   option = {
+    //     title: {
+    //       text: `2022年${this.curMonth}月心情统计`,
+    //       left: "center",
+    //     },
+    //     tooltip: {
+    //       trigger: "item",
+    //     },
+    //     legend: {
+    //       orient: "vertical",
+    //       left: "left",
+    //     },
+    //     series: [
+    //       {
+    //         name: "my Mood",
+    //         type: "pie",
+    //         radius: "50%",
+    //         // 将数据放入其中
+    //         data: moodItems,
+    //         /* data: [
+    //           { value: 3, name: "开心" },
+    //           { value: 4, name: "惊讶" },
+    //           { value: 1, name: "难过" },
+    //           { value: 3, name: "生气" },
+    //           { value: 2, name: "喜欢" },
+    //           { value: 2, name: "中性" },
+    //         ], */
+    //         emphasis: {
+    //           itemStyle: {
+    //             shadowBlur: 10,
+    //             shadowOffsetX: 0,
+    //             shadowColor: "rgba(0, 0, 0, 0.5)",
+    //           },
+    //         },
+    //       },
+    //     ],
+    //   };
+    //   this.myChart = myChart;
+    //   this.option = option;
+    //   option && myChart.setOption(option);
+    //   // 点击之后点击功能禁用
+    //   e.target.disabled = true;
+    // },
     // element-ui 复制
     handleClose(done) {
       this.$confirm("确认关闭？")
@@ -273,21 +553,6 @@ export default {
   beforeDestroy() {
     // 销毁自定义时间
     this.$refs.calendar.$on("getTargetDate");
-  },
-  watch: {
-    // 监听targetDate的变化
-    targetDate() {
-      if (localStorage.getItem(`${this.targetDate}moodDiary`)) {
-        const curmoodsAndEmojis =
-          JSON.parse(localStorage.getItem(`${this.targetDate}moodDiary`))[3] ||
-          [];
-        this.curMood = curmoodsAndEmojis.mood;
-        this.curDiary = curmoodsAndEmojis.diary;
-      } else {
-        this.curMood = "";
-        this.curDiary = "";
-      }
-    },
   },
 };
 </script>
@@ -360,10 +625,19 @@ export default {
           position: absolute;
           text-align: center;
           z-index: 3;
+          // 结构伪类选择器，我想给节点的第3和第5个加旋转  .mork 的 子类 .item_mood_msg
+          &:nth-of-type(3){
+            transform: rotate(-33deg);
+          }
+          &:nth-of-type(5){
+            transform: rotate(33deg);
+          }
         }
+
         .active {
           font-size: 1.375rem;
           font-weight: bold;
+          transform: translateY(-20%);
         }
         .pointer {
           position: absolute;
@@ -428,6 +702,21 @@ export default {
     border-radius: 0.5rem;
     background-color: rgb(250, 227, 217);
     text-align: center;
+    .draw-btn {
+      padding: 0.4375rem;
+      border: 0;
+      border-radius: 0.5rem;
+      margin-bottom: 1.25rem;
+      color: #fff;
+      background-color: rgb(253, 138, 186);
+    }
+    .specify-mood {
+      font-size: 1.375rem;
+      line-height: 1.875rem;
+      span {
+        font-weight: bolder;
+      }
+    }
   }
 }
 </style>
