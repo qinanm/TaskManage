@@ -1,6 +1,6 @@
 import Vue from 'vue'
 // 按需引入 element-ui 
-import { Button,Message,MessageBox,Dialog } from 'element-ui'
+import { Button,Message,MessageBox,Dialog,Divider } from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css';  // 引入element-ui样式
 // 引入echarts
 import * as echarts from 'echarts';
@@ -11,6 +11,7 @@ Vue.prototype.$alert = MessageBox.alert;
 Vue.prototype.$message = Message;
 Vue.use(Button)
 Vue.use(Dialog)
+Vue.use(Divider)
 
 // 引入路由
 import router from './router'

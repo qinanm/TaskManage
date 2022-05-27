@@ -9,7 +9,10 @@
       <router-link to="/mood_watch">心情监测</router-link>
       <!-- <a href="#">心情监测</a> -->
     </div>
-    <div><a href="#">来点music</a></div>
+    <div>
+      <router-link to="/some_music">来点music</router-link>
+      <!-- <a href="#">来点music</a> -->
+    </div>
     <div><a href="#">随机美句</a></div>
     <div><a href="#">个人中心</a></div>
   </div>

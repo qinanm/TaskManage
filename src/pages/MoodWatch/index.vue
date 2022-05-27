@@ -408,121 +408,6 @@ export default {
         // console.log(itemAngle);
       });
     },
-    // 点击画图
-    // drawPiePic(e) {
-    //   // console.log(this.targetDate.split(".")[1] - 1); // 可以通过这个获取当前月份，然后渲染就可以和日历月份进行联动，年份也是同理可得
-    //   // 获取数据，从本地得到本月的数据
-    //   // const curYear = new Date().getFullYear();
-    //   const curYear = new Date().getFullYear();
-    //   const curMonth = this.targetDate.split(".")[1] - 1;
-    //   // 每个月对应的天数
-    //   let daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-    //   // 闰年2月不同天数
-    //   if ((curYear % 4 === 0 && curYear % 100 !== 0) || curYear % 400 === 0) {
-    //     daysInMonth[1] = 29;
-    //   }
-    //   const days = daysInMonth[curMonth];
-    //   let goodMoods = 0; // 正面心情次数
-    //   let middleMoods = 0; // 中性心情次数
-    //   let badMoods = 0; // 负面心情次数
-    //   let maxMoodCount = 0; // 出现心情次数最多的次数
-    //   let maxMood = "无"; // 出现次数最多的心情
-    //   // 使用map来存储数据 心情是键，次数是值
-    //   let map = new Map();
-    //   let moodItems = []; // 用来存放遍历的map
-    //   for (let i = 1; i < days + 1; i++) {
-    //     const targetDate = curYear + "." + (curMonth + 1) + "." + i;
-    //     // console.log(targetDate);
-    //     if (localStorage.getItem(`${targetDate}moodDiary`)) {
-    //       const curMoodDiary = JSON.parse(
-    //         localStorage.getItem(`${targetDate}moodDiary`)
-    //       )[3];
-    //       if (!map.has(curMoodDiary.mood)) {
-    //         map.set(curMoodDiary.mood, 1);
-    //       } else {
-    //         map.set(curMoodDiary.mood, map.get(curMoodDiary.mood) + 1);
-    //       }
-    //       // 得到正面，负面和中性情绪分别的次数
-    //       if (curMoodDiary.type === "正面") {
-    //         goodMoods++;
-    //       } else if (curMoodDiary.type === "中性") {
-    //         middleMoods++;
-    //       } else {
-    //         badMoods++;
-    //       }
-    //     }
-    //   }
-    //   // 如果map为空，说明当月没有数据
-    //   if (!map.size) {
-    //     moodItems = [{ value: 1, name: "本月木有情绪记录啦" }];
-    //   }
-    //   // 将统计的不同面情绪赋值给data
-    //   this.goodMoods = goodMoods;
-    //   this.middleMoods = middleMoods;
-    //   this.badMoods = badMoods;
-
-    //   // map遍历 item 是数组 第一个值是 key， 第二个值是 value
-    //   for (let item of map) {
-    //     // console.log(item);
-    //     moodItems.push({
-    //       value: item[1],
-    //       name: item[0],
-    //     });
-    //     // 通过这个也可以得到出现最多的心情是什么
-    //     if (maxMoodCount < item[1]) {
-    //       maxMoodCount = item[1];
-    //       maxMood = item[0];
-    //     }
-    //   }
-    //   this.maxMood = maxMood; // 将maxMood赋值给data
-
-    //   // echarts 画图
-    //   const chartDom = this.$refs.echart;
-    //   let myChart = this.$echarts.init(chartDom);
-    //   let option;
-    //   option = {
-    //     title: {
-    //       text: `2022年${this.curMonth}月心情统计`,
-    //       left: "center",
-    //     },
-    //     tooltip: {
-    //       trigger: "item",
-    //     },
-    //     legend: {
-    //       orient: "vertical",
-    //       left: "left",
-    //     },
-    //     series: [
-    //       {
-    //         name: "my Mood",
-    //         type: "pie",
-    //         radius: "50%",
-    //         // 将数据放入其中
-    //         data: moodItems,
-    //         /* data: [
-    //           { value: 3, name: "开心" },
-    //           { value: 4, name: "惊讶" },
-    //           { value: 1, name: "难过" },
-    //           { value: 3, name: "生气" },
-    //           { value: 2, name: "喜欢" },
-    //           { value: 2, name: "中性" },
-    //         ], */
-    //         emphasis: {
-    //           itemStyle: {
-    //             shadowBlur: 10,
-    //             shadowOffsetX: 0,
-    //             shadowColor: "rgba(0, 0, 0, 0.5)",
-    //           },
-    //         },
-    //       },
-    //     ],
-    //   };
-    //   this.myChart = myChart;
-    //   this.option = option;
-    //   option && myChart.setOption(option);
-    //   // 点击之后点击功能禁用
-    //   e.target.disabled = true;
-    // },
     // element-ui 复制
     handleClose(done) {
       this.$confirm("确认关闭？")
@@ -637,7 +522,7 @@ export default {
         .active {
           font-size: 1.375rem;
           font-weight: bold;
-          transform: translateY(-20%);
+          transform: translateY(-20%); // 微调一下，好看
         }
         .pointer {
           position: absolute;
