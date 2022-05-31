@@ -40,7 +40,10 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="targetMusic in targetMusics" :key="targetMusic.id">
+            <tr
+              v-for="targetMusic in targetPages[curPageNo - 1]"
+              :key="targetMusic.id"
+            >
               <!-- 使用.self使事件只作用在自身，阻止了捕获行为 -->
               <td @click.self="toPlay">
                 <svg class="icon" aria-hidden="true">
@@ -60,7 +63,16 @@
         </div>
       </div>
       <!-- 分页器---后面在写 -->
-      <div class="page-devide"></div>
+      <div class="page-devide">
+        <button
+          v-for="pageNo in pageTotal"
+          :key="pageNo"
+          @click="changePageNo(pageNo, $event)"
+          ref="curpage"
+        >
+          {{ pageNo }}
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -78,11 +90,38 @@ export default {
           songer: "暂无数据",
           id: "暂无数据",
         },
-      ], // 页面展现歌曲数据，每个元素都是对象
+      ], // 当前页面展现歌曲数据，每个元素都是对象
       curMusicId: 0, // 当前处于播放链接的id
       curSvgDom: "", // 当前改变图标的dom元素
       curMusicUrl: "", // 当前音乐地址
+      // 分页器 -- 指定当前是第几页
+      curPageNo: 1,
     };
+  },
+  computed: {
+    // 分页器使用数据
+    // 总页数
+    pageTotal() {
+      return Math.ceil(this.targetMusics.length / 10); // 向上取整
+    },
+    // 每页展示的10条数据
+    targetPages() {
+      let targetpages = []; //一个数组，存放每个页面数据数组 的数组，
+      let targetpage = []; // 存放页面数据数组
+      let num = 0;
+      this.targetMusics.forEach((targetMusic, index) => {
+        targetpage.push(targetMusic); // 往单个页面中添加数据
+        // 当页面数据超过10个时，将当前targetpage添加进targetpages， 清空targetpage
+        if ((index + 1) % 10 === 0) {
+          targetpages[num++] = targetpage;
+          targetpage = [];
+        }
+      });
+      // 循环出来后，若targetpage不为空，需要将其添加进targetpages
+      targetpage && (targetpages[num] = targetpage);
+      // 返回targetpages
+      return targetpages;
+    },
   },
   mounted() {
     // 将历史记录存储到本地
@@ -95,6 +134,30 @@ export default {
         localStorage.getItem("historySongNames")
       );
     }
+
+    // 初始页面展示数据
+    axios
+      .get(`http://localhost:3000/search?keywords=蔡依林`)
+      .then((response) => {
+        let resSongList = [];
+        for (let song of response.data.result.songs) {
+          // 将每首歌的关键信息封装为一个对象，逐个放进数组里
+          const resSong = {
+            title: song.name,
+            songer: song.artists[0].name,
+            id: song.id,
+          };
+          resSongList.push(resSong);
+        }
+        // 将数据传给data,在页面中渲染出来
+        this.targetMusics = resSongList; // 注意axios里的this指向不是组件实例，可以在一开始将this赋值给that，再用that操作,或者将回调函数改为箭头函数即可
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
+    // 分页器 初始第一页为活跃页
+    this.$refs.curpage[0].className = "active";
   },
   watch: {
     // 监听历史记录的变化，用于刷新本地存储
@@ -110,8 +173,9 @@ export default {
       axios
         .get(`http://localhost:3000/search?keywords=${songName}`)
         .then((response) => {
-          // response.data.result.songs
+          // console.log(response);
           let resSongList = [];
+          // 要判断获取的数据为空的情况
           for (let song of response.data.result.songs) {
             // 将每首歌的关键信息封装为一个对象，逐个放进数组里
             const resSong = {
@@ -156,7 +220,7 @@ export default {
           axios
             .get(`http://localhost:3000/song/url?id=${id}`)
             .then((response) => {
-              console.log(response.data.data[0].url);
+              console.log(response.data);
               this.curMusicUrl = response.data.data[0].url; // 获取url给到data
               // 注意要开是music节点没有src，所以需要等这个src放进去之后才能play，使用nextTick
               this.$nextTick(() => {
@@ -183,13 +247,25 @@ export default {
         this.$refs.music.pause(); // 通过音乐节点控制音乐播放
       }
     },
+    // 切换页
+    changePageNo(pageNo, e) {
+      this.curPageNo = pageNo; // 将选中的页数赋值给当前页
+      // 改变类名
+      // console.log(this.$refs.curpage);
+      // 先排他
+      this.$refs.curpage.forEach((page) => {
+        page.className = "";
+      });
+      // 将当前赋值为active
+      e.target.className = "active";
+    },
   },
 };
 </script>
 
 <style scoped lang="less">
 #music {
-    padding-top: 3.125rem;
+  padding-top: 3.125rem;
   // 版心
   .m_w {
     width: 70%;
@@ -235,7 +311,6 @@ export default {
     }
     .target-music {
       width: 80%;
-      height: 34.375rem;
       background-color: rgb(138, 198, 209);
       margin: 1.875rem auto;
       border-radius: 0.625rem;
@@ -272,6 +347,20 @@ export default {
         .playing {
           cursor: pointer;
         }
+      }
+    }
+    .page-devide {
+      width: 80%;
+      margin: 0 auto;
+      display: flex;
+      justify-content: center;
+      button {
+        padding: 0.3125rem 0.5rem; // 上下 左右
+        margin: 0 0.625rem;
+        border: 0;
+      }
+      .active {
+        background-color: rgb(233, 165, 188);
       }
     }
   }
